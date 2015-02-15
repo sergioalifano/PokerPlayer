@@ -10,20 +10,12 @@ namespace PokerPlayer
     {
         static void Main(string[] args)
         {
+            Deck myDeck = new Deck();
+            myDeck.Shuffle();
             PokerPlayer player = new PokerPlayer();
+            player.DrawHand(myDeck.Deal(5));
 
-            Card one = new Card(2, 1);
-            Card two = new Card(3, 1);
-            Card three = new Card(10, 1);
-            Card four = new Card(5, 1);
-            Card five = new Card(6, 1);
-
-            List<Card> myCards= new List<Card>() { one,two,three,four,five };
-
-            //give the player the cards
-            player.DrawHand(myCards);
             player.ShowHand();
-            
 
             Console.ReadKey();
         }
@@ -51,35 +43,33 @@ namespace PokerPlayer
         {
             get
             {
-                if (this.HasPair())
-                    return HandType.OnePair;
-                else if (this.HasTwoPair())
-                    return HandType.TwoPair;
-                else if (this.HasThreeOfAKind())
-                    return HandType.ThreeOfAKind;
-                else if (this.HasStraight())
-                    return HandType.Straight;
-                else if (this.HasFlush())
-                    return HandType.Flush;
-                else if (this.HasFullHouse())
-                    return HandType.FullHouse;
-                else if (this.HasFourOfAKind())
-                    return HandType.FourOfAKind;
+                if (this.HasRoyalFlush())
+                    return HandType.RoyalFlush;
                 else if (this.HasStraightFlush())
                     return HandType.StraightFlush;
-                else if (this.HasRoyalFlush())
-                    return HandType.RoyalFlush;
+                else if (this.HasFourOfAKind())
+                    return HandType.FourOfAKind;
+                else if (this.HasFullHouse())
+                    return HandType.FullHouse;
+                else if (this.HasFlush())
+                    return HandType.Flush;                
+                else if (this.HasStraight())
+                    return HandType.Straight;
+                else if (this.HasThreeOfAKind())
+                    return HandType.ThreeOfAKind;
+                else if (this.HasTwoPair())
+                    return HandType.TwoPair;
+                else if (this.HasPair())
+                    return HandType.OnePair;
 
                 else return HandType.HighCard;
-            }
-    
-            
+            }                
         }
 
         // Constructor that isn't used
         public PokerPlayer(){}
 
-        //set the CurrentHand with 5 cards
+        //set CurrentHand
         public void DrawHand(List<Card> myCards)
         {
             CurrentHand = myCards;
@@ -87,20 +77,9 @@ namespace PokerPlayer
 
         public void ShowHand()
         {
-            //bool gotNothing=!(this.HasPair()||this.HasThreeOfAKind()||this.HasStraight()||this.HasFlush()||this.HasFullHouse()||this.HasFourOfAKind()||this.HasStraight()||this.HasRoyalFlush());
-
-            //if (gotNothing)
-            //{
-            //    //this function sort the CurrentHand list by rank
-            //    SortCards();
-
-            //   // this.HandRank = CurrentHand[CurrentHand.Count - 1].Rank;
-            //    //Take the last card of the list and show it
-            //    Console.WriteLine();
-            //}
             foreach (Card item in CurrentHand)
             {
-                Console.Write(item.Rank+""+item.Suit+" ");               
+                Console.Write(item.Rank.ToString()+""+item.Suit.ToString()+" ");               
             }
             Console.WriteLine();
             Console.WriteLine(this.HandRank);
@@ -109,128 +88,64 @@ namespace PokerPlayer
 
         public bool HasPair()
         {
-
-            SortCards();
-            bool flag1 = false;
-
-            //check if has a better rank
-            if (HasThreeOfAKind() || HasFourOfAKind() || HasTwoPair() || HasFullHouse())
-            {
-                return false;                
-            }
-
-            //otherwise check for pair
-            for (int i = 0; i < CurrentHand.Count-1; i++)
-            {
-                flag1 = flag1 || (CurrentHand[i].Rank == CurrentHand[i + 1].Rank);
-            }
-        
-            return flag1 ;
+            //once I group by rank I check if there is only one group with a pair
+            return this.CurrentHand.GroupBy(x => x.Rank).Where(x => x.Count() == 2).Count() == 1;
         }
         public bool HasTwoPair()
         {
-            SortCards();
-            bool flag1 = false, flag2 = false, flag3=false;
-
-            if (HasThreeOfAKind() || HasFourOfAKind() || HasFullHouse())
-            {
-                return false;               
-            }
-
-            flag1 = CurrentHand[0].Rank == CurrentHand[1].Rank && CurrentHand[2].Rank == CurrentHand[3].Rank;
-            flag2 = CurrentHand[1].Rank == CurrentHand[2].Rank && CurrentHand[3].Rank == CurrentHand[4].Rank;
-            flag2 = CurrentHand[0].Rank == CurrentHand[1].Rank && CurrentHand[3].Rank == CurrentHand[4].Rank;
-            return flag1 || flag2 || flag3;
+            return this.CurrentHand.GroupBy(x => x.Rank).Where(x => x.Count() == 2).Count() == 2;
         }
         public bool HasThreeOfAKind()
         {
-            SortCards();
-            bool flag1=false, flag2=false, flag3=false;
-
-            //if it's not a FourOfAKind or a Full House then at least 2 cards must be different from the rest
-            if (HasFourOfAKind() || HasFullHouse())
-            {
-                return false;
-                
-            }
-
-            //check the first 3 cards
-            flag1 = CurrentHand[0].Rank == CurrentHand[1].Rank &&
-                CurrentHand[1].Rank == CurrentHand[2].Rank;
-
-            //check the last 3 cards
-            flag2 = CurrentHand[2].Rank == CurrentHand[3].Rank &&
-                CurrentHand[3].Rank == CurrentHand[4].Rank;
-
-            //check the 3 cards in between
-            flag3 = CurrentHand[1].Rank == CurrentHand[2].Rank &&
-                CurrentHand[2].Rank == CurrentHand[3].Rank;
-
-            return flag1 || flag2 || flag3;
+            return this.CurrentHand.GroupBy(x => x.Rank).Where(x => x.Count() == 3).Count() == 1;
         }
         public bool HasStraight()
         {
             SortCards();
-            bool flag1 = true;
 
             //case 10,J,Q,K,A
             if(CurrentHand[0].Rank == Rank.Ace && CurrentHand[4].Rank ==Rank.King)
             {
                 for (int i = 1; i < 3; i++)
                 {
-                    flag1 = flag1 && (CurrentHand[i].Rank == CurrentHand[i + 1].Rank-1);
+                    if (CurrentHand[i].Rank != CurrentHand[i + 1].Rank - 1)
+                        return false;
                 }
-            }
-           
+            }           
             else
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 1; i < 4; i++)
                 {
-                    flag1 = flag1 && (CurrentHand[i].Rank == CurrentHand[i + 1].Rank-1);
+                    if (CurrentHand[i].Rank != CurrentHand[i + 1].Rank - 1)
+                        return false;
                 }
             }
-            return flag1;
+            return true;
         }
         public bool HasFlush()
-        {  
-          return CurrentHand.GroupBy(x => x.Suit).Count() == 5;
+        {
+            //I count if there is a group with 5 suits
+            return this.CurrentHand.GroupBy(x => x.Suit).Where(x => x.Count() == 5).Count() == 1;
         }
         public bool HasFullHouse()
         {
-            bool flag1, flag2;
-
-            flag1 = CurrentHand[0].Rank == CurrentHand[1].Rank && CurrentHand[1].Rank == CurrentHand[2].Rank && CurrentHand[3].Rank == CurrentHand[4].Rank;
-            flag2 = CurrentHand[0].Rank == CurrentHand[1].Rank && CurrentHand[2].Rank == CurrentHand[3].Rank && CurrentHand[3].Rank == CurrentHand[4].Rank;
-
-            return flag1 || flag2;
+            return HasPair() && HasThreeOfAKind();
         }
         public bool HasFourOfAKind()
         {
-            bool flag1, flag2;
-            //sort cards
-            SortCards();
+            bool fourOfAKind = this.CurrentHand.GroupBy(x => x.Rank).Where(x => x.Count() == 4).Count() == 1;
+            bool allDistinctSuits = this.CurrentHand.Select(x => x.Suit).Distinct().Count() == 4;
 
-            //flag1 is True if only the last card is different from the others
-            flag1 = CurrentHand[0].Rank == CurrentHand[1].Rank &&
-                CurrentHand[1].Rank == CurrentHand[2].Rank &&
-                CurrentHand[2].Rank == CurrentHand[3].Rank;
-
-            //flag2 is True if only the first card is different from the others
-            flag2 = CurrentHand[1].Rank == CurrentHand[2].Rank &&
-                CurrentHand[2].Rank == CurrentHand[3].Rank &&
-                CurrentHand[3].Rank == CurrentHand[4].Rank;
-
-            return flag1 || flag2;
+            return fourOfAKind && allDistinctSuits;          
         }
         public bool HasStraightFlush()
         {
-            SortCards();
             return HasFlush() && HasStraight();
         }
         public bool HasRoyalFlush()
         {
             SortCards();
-            if (HasStraightFlush() && ((CurrentHand[0].Rank == Rank.Ace) && (CurrentHand[4].Rank == Rank.King)))
+            if (HasStraightFlush() && ((CurrentHand[0].Rank == Rank.Ten) && (CurrentHand[4].Rank == Rank.Ace)))
                 return true;
             else
                 return false;

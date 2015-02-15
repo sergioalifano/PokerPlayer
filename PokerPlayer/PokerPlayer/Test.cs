@@ -159,6 +159,7 @@ namespace PokerPlayer
             Assert.That(player.HasFourOfAKind());
             Assert.That(player.HandRank == PokerPlayer.HandType.FourOfAKind);
             testHand.Clear();
+
             testHand.Add(new Card((int)Rank.Ten, (int)Suit.Club));
             testHand.Add(new Card((int)Rank.Ten, (int)Suit.Diamond));
             testHand.Add(new Card((int)Rank.Ten, (int)Suit.Club));
