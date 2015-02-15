@@ -12,9 +12,18 @@ namespace PokerPlayer
         {
             Deck myDeck = new Deck();
             myDeck.Shuffle();
-            PokerPlayer player = new PokerPlayer();
-            player.DrawHand(myDeck.Deal(5));
+            PokerPlayer player = new PokerPlayer();           
 
+            //Card one = new Card(10, 1);
+            //Card two = new Card(10, 3);
+            //Card three = new Card(13, 1);
+            //Card four = new Card(2, 1);
+            //Card five = new Card(11, 1);
+            //List<Card> myCards = new List<Card>() { one, two, three, four, five };
+            //player.DrawHand(myCards);
+
+            player.DrawHand(myDeck.Deal(5));
+            
             player.ShowHand();
 
             Console.ReadKey();
@@ -77,12 +86,38 @@ namespace PokerPlayer
 
         public void ShowHand()
         {
+            //Unicode characters for suits
+            String heart = "\u2665";
+            String diamond = "\u2666";
+            String spade = "\u2660";
+            String club = "\u2663";
+
+            Console.BackgroundColor = ConsoleColor.Gray;
+            Console.Clear();
             foreach (Card item in CurrentHand)
             {
-                Console.Write(item.Rank.ToString()+""+item.Suit.ToString()+" ");               
+                switch (item.Suit)
+                {
+                    case Suit.Heart: 
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(item.Rank + heart + " ");
+                        break;
+                    case Suit.Diamond:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(item.Rank + diamond+" ");
+                        break;
+                    case Suit.Spade:
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.Write(item.Rank + spade+" ");
+                        break;
+                    case Suit.Club:
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.Write(item.Rank +  club+" ");
+                        break;
+                }                             
             }
-            Console.WriteLine();
-            Console.WriteLine(this.HandRank);
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.WriteLine("\n\nYou have: "+this.HandRank);
             
         }
 
@@ -114,6 +149,7 @@ namespace PokerPlayer
             }           
             else
             {
+                //all other cases
                 for (int i = 1; i < 4; i++)
                 {
                     if (CurrentHand[i].Rank != CurrentHand[i + 1].Rank - 1)
@@ -124,7 +160,7 @@ namespace PokerPlayer
         }
         public bool HasFlush()
         {
-            //I count if there is a group with 5 suits
+            //Check if there is a group with 5 suits
             return this.CurrentHand.GroupBy(x => x.Suit).Where(x => x.Count() == 5).Count() == 1;
         }
         public bool HasFullHouse()
@@ -275,7 +311,7 @@ namespace PokerPlayer
             {
                 foreach (Rank rank in Enum.GetValues(typeof(Rank)))
                 {
-                    DeckOfCards.Add(new Card((int)suit, (int)rank));
+                    DeckOfCards.Add(new Card((int)rank, (int)suit));
                 }
             }
         }
