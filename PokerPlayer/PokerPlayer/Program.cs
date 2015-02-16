@@ -238,9 +238,10 @@ namespace PokerPlayer
 
             //merge together the the decks of cards  P.S.The function Concat() returns a new list.
             DeckOfCards = (List<Card>)DeckOfCards.Concat(DiscardedCards).ToList();
+            CardsRemaining = DeckOfCards.Count;
 
             Random gnr = new Random();
-            for (int i = 0; i < DeckOfCards.Count; i++)
+            for (int i = 0; i < CardsRemaining; i++)
             {
                 randomCard = gnr.Next(0, DeckOfCards.Count);
 
