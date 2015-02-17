@@ -14,19 +14,8 @@ namespace PokerPlayer
             myDeck.Shuffle();
             PokerPlayer player = new PokerPlayer();           
 
-          //  player.DrawHand(myDeck.Deal(5));
-
-            Card one = new Card(2, 1);
-            Card two = new Card(3, 1);
-            Card three = new Card(4, 1);
-            Card four = new Card(5, 1);
-            Card five = new Card(14, 1);
-
-            List<Card> myCards = new List<Card>() { one, two, three, four, five };
-
-            //give the player the cards
-            player.DrawHand(myCards);
-            
+            player.DrawHand(myDeck.Deal(5));
+                            
             player.ShowHand();
 
             Console.ReadKey();
@@ -40,7 +29,7 @@ namespace PokerPlayer
         public enum HandType
         {
             HighCard,
-            OnePair=15,
+            OnePair,
             TwoPair,
             ThreeOfAKind,
             Straight,
@@ -143,10 +132,11 @@ namespace PokerPlayer
         }
         public bool HasStraight()
         {
+            //sort ascending
             SortCards();
 
             //case A,2,3,4,5
-            if(CurrentHand[4].Rank == Rank.Ace)
+            if(CurrentHand[CurrentHand.Count-1].Rank == Rank.Ace && CurrentHand[0].Rank == Rank.Two)
             {
                 for (int i = 1; i < 3; i++)
                 {
@@ -157,7 +147,7 @@ namespace PokerPlayer
             else
             {
                 //all other cases
-                for (int i = 1; i < 4; i++)
+                for (int i = 0; i < CurrentHand.Count-1; i++)
                 {
                     if (CurrentHand[i].Rank != CurrentHand[i + 1].Rank - 1)
                         return false;
